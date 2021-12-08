@@ -1,4 +1,4 @@
-name: Add members to .md file
+name: Clean DB
 
 on:
   schedule:
