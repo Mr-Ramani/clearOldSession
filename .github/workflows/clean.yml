@@ -1,0 +1,43 @@
+name: Add members to .md file
+
+on:
+  schedule:
+    # runs every 10 min
+    - cron: '*/10 * * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner
+
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7.7' # install the python version needed
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: execute py script # run main.py to get the latest data
+        env:
+          DbUser: ${{ secrets.DBUSER }}
+          DbPass: ${{ secrets.DBPASS }}
+          DbHost: ${{ secrets.DBHOST }}
+          DB: ${{ secrets.DB }}
+        run: python main.py
+      
+      - name: Commit files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Added member" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
